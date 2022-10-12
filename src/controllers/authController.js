@@ -10,8 +10,9 @@ export async function signUp(req, res) {
     const existingEmail = await connection.query(
       `SELECT * FROM users WHERE email = '${email}';`
     );
-    const compare = existingEmail.rows[0].email;
-    if (compare) {
+
+    if (existingEmail.rowCount !== 0) {
+      console.log(existingEmail.rows);
       return res.sendStatus(409);
     }
 
@@ -35,7 +36,8 @@ export async function signIn(req, res) {
       `SELECT * FROM users WHERE email = '${email}';`
     );
 
-    if (!user) {
+    if (user.rowCount === 0) {
+      console.log(user);
       return res.status(401).send("Usuário ou senha não encontrada");
     }
 
@@ -52,8 +54,10 @@ export async function signIn(req, res) {
       [user.rows[0].id, token]
     );
 
+    console.log(user.rows.length);
     res.send({ token: token }).status(200);
-    //res.send(user.rows[0].password);
+
+    //res.send(user.rows);
   } catch (error) {
     console.log(error.message);
     res.sendStatus(500);
