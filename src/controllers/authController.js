@@ -26,3 +26,36 @@ export async function signUp(req, res) {
     res.sendStatus(500);
   }
 }
+
+export async function signIn(req, res) {
+  const { email, password } = req.body;
+
+  try {
+    const user = await connection.query(
+      `SELECT * FROM users WHERE email = '${email}';`
+    );
+
+    if (!user) {
+      return res.status(401).send("Usuário ou senha não encontrada");
+    }
+
+    const isValid = bcrypt.compareSync(password, user.rows[0].password);
+
+    if (!isValid) {
+      return res.status(401).send("Usuário ou senha não encontrada");
+    }
+
+    const token = uuid();
+
+    await connection.query(
+      `INSERT INTO sessions ("userId", token) VALUES ($1, $2);`,
+      [user.rows[0].id, token]
+    );
+
+    res.send({ token: token }).status(200);
+    //res.send(user.rows[0].password);
+  } catch (error) {
+    console.log(error.message);
+    res.sendStatus(500);
+  }
+}
