@@ -59,7 +59,22 @@ export async function openUrl(req, res) {
       urlId,
     ]);
 
-    res.send(`Redirecionei para ${fullUrl}`);
+    res.redirect(`${fullUrl}`);
+  } catch (error) {
+    console.log(error.message);
+    res.sendStatus(500);
+  }
+}
+
+export async function deleteUrl(req, res) {
+  const urlId = req.params.id;
+
+  try {
+    await connection.query(`DELETE FROM visits WHERE visits."urlId" = $1;`, [
+      urlId,
+    ]);
+    await connection.query(`DELETE FROM urls WHERE urls.id = $1;`, [urlId]);
+    res.sendStatus(204);
   } catch (error) {
     console.log(error.message);
     res.sendStatus(500);
