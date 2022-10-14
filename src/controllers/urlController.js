@@ -13,6 +13,18 @@ export async function postUrl(req, res) {
       [url, userId, shortUrl]
     );
 
+    const urlId = (
+      await connection.query(
+        `SELECT id FROM urls WHERE urls."shortUrl" = $1;`,
+        [shortUrl]
+      )
+    ).rows[0].id;
+
+    await connection.query(
+      `INSERT INTO visits ("urlId", "visitNum") VALUES ($1, 0);`,
+      [urlId]
+    );
+
     res.status(201).send({ shortUrl: shortUrl });
   } catch (error) {
     console.log(error.message);
@@ -80,3 +92,5 @@ export async function deleteUrl(req, res) {
     res.sendStatus(500);
   }
 }
+
+//SELECT COUNT(visits.id) FROM visits JOIN urls ON urls.id = visits."urlId" WHERE visits."urlId" = 1;
