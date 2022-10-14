@@ -12,7 +12,7 @@ async function validateUserData(req, res, next) {
     `SELECT * FROM sessions WHERE token = '${token}';`
   );
   if (session.rowCount === 0) {
-    return res.sendStatus(401);
+    return res.sendStatus(404);
   }
   const userId = session.rows[0].userId;
 
@@ -21,7 +21,7 @@ async function validateUserData(req, res, next) {
   );
 
   if (user.rowCount === 0) {
-    return res.sendStatus(401);
+    return res.sendStatus(404);
   }
 
   res.locals.userId = userId;
