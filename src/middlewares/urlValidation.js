@@ -62,12 +62,15 @@ async function validateDeleteUrl(req, res, next) {
     return res.sendStatus(401);
   }
 
-  const urlOwnerId = (
-    await connection.query(`SELECT "userId" FROM urls WHERE urls.id = $1;`, [
-      urlId,
-    ])
-  ).rows[0].userId;
-  if (urlOwnerId !== userId) {
+  const urlOwnerId = await connection.query(
+    `SELECT "userId" FROM urls WHERE urls.id = $1;`,
+    [urlId]
+  );
+
+  if (urlOwnerId.rowCount === 0) {
+    return res.sendStatus(404);
+  }
+  if (urlOwnerId.rows[0].userId !== userId) {
     return res.sendStatus(401);
   }
 
